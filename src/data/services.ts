@@ -10,7 +10,11 @@ export interface Service {
     fullDescription: string;
     iconName: "Scissors" | "Ruler" | "Shirt" | "Sparkles" | "Star" | "Users" | "CheckCircle2";
     features: string[];
-    image: string; // Placeholder for now
+    image: string;
+    gallery?: string[];
+    duration?: string;
+    pricing?: string;
+    showPricing?: boolean;
 }
 
 export const servicesData: Service[] = [
