@@ -12,6 +12,7 @@ interface IItem {
     description: string;
     category: string;
     image: string;
+    images?: string[];
 }
 
 export default function CollectionsAdmin() {
@@ -25,9 +26,10 @@ export default function CollectionsAdmin() {
         title: "",
         description: "",
         category: "jalabiya",
-        image: ""
+        image: "",
+        images: ["", "", ""]
     });
-    const [uploading, setUploading] = useState(false);
+    const [uploadingIndex, setUploadingIndex] = useState<number | 'main' | null>(null);
 
     const fetchItems = async () => {
         try {
@@ -62,7 +64,8 @@ export default function CollectionsAdmin() {
             title: item.title,
             description: item.description,
             category: item.category,
-            image: item.image
+            image: item.image,
+            images: item.images && item.images.length >= 3 ? item.images : (item.images ? [...item.images, ...Array(3 - item.images.length).fill("")] : ["", "", ""])
         });
         setIsEditModalOpen(true);
     };
@@ -70,12 +73,12 @@ export default function CollectionsAdmin() {
     const closeEditModal = () => {
         setIsEditModalOpen(false);
         setEditingItem(null);
-        setEditForm({ title: "", description: "", category: "jalabiya", image: "" });
+        setEditForm({ title: "", description: "", category: "jalabiya", image: "", images: ["", "", ""] });
     };
 
-    const handleEditImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleEditImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, index: 'main' | number) => {
         if (!e.target.files?.[0]) return;
-        setUploading(true);
+        setUploadingIndex(index);
 
         try {
             const file = e.target.files[0];
@@ -89,11 +92,17 @@ export default function CollectionsAdmin() {
             if (!uploadRes.ok) throw new Error("Upload failed");
             const { url } = await uploadRes.json();
 
-            setEditForm(prev => ({ ...prev, image: url }));
+            if (index === 'main') {
+                setEditForm(prev => ({ ...prev, image: url }));
+            } else {
+                const newImages = [...editForm.images];
+                newImages[index] = url;
+                setEditForm(prev => ({ ...prev, images: newImages }));
+            }
         } catch (error) {
             alert("فشل تحديث الصورة");
         } finally {
-            setUploading(false);
+            setUploadingIndex(null);
         }
     };
 
@@ -204,36 +213,75 @@ export default function CollectionsAdmin() {
                         <h2 className="text-2xl font-bold text-[#5A4A42] mb-6 font-arabic text-center">تعديل العنصر</h2>
 
                         <div className="space-y-6">
-                            {/* Image Upload */}
-                            <div className="space-y-2">
-                                <label className="block font-bold text-gray-700">صورة العرض</label>
-                                <div className="border-2 border-dashed border-gray-200 rounded-2xl p-4 text-center hover:border-[#C5A038] transition-colors relative group">
-                                    {editForm.image ? (
-                                        <div className="relative h-48 w-full rounded-xl overflow-hidden">
-                                            <Image
-                                                src={editForm.image}
-                                                alt="Preview"
-                                                fill
-                                                className="object-cover"
-                                            />
-                                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <Upload className="text-white" />
-                                                <span className="text-white mr-2">تغيير الصورة</span>
+                            {/* Images Section */}
+                            <div className="space-y-4">
+                                <label className="block font-bold text-gray-700">صور المنتج (حتى 4 صور)</label>
+                                
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    {/* Main Image */}
+                                    <div className="md:col-span-2 relative aspect-square border-2 border-dashed border-gray-200 rounded-2xl overflow-hidden hover:border-[#C5A038] transition-colors group">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => handleEditImageUpload(e, 'main')}
+                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                        />
+                                        {uploadingIndex === 'main' ? (
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-[#C5A038] bg-white/80">
+                                                <Loader2 className="animate-spin" />
+                                                <span className="text-sm">جاري الرفع...</span>
                                             </div>
-                                        </div>
-                                    ) : (
-                                        <div className="flex flex-col items-center justify-center py-8 text-gray-400">
-                                            <Upload size={32} />
-                                            <span>اضغط لرفع صورة</span>
-                                        </div>
-                                    )}
+                                        ) : editForm.image ? (
+                                            <div className="relative w-full h-full">
+                                                <Image src={editForm.image} alt="Main" fill className="object-cover" />
+                                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <Upload size={20} className="text-white" />
+                                                    <span className="text-white text-xs mr-2">تغيير الرئيسية</span>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="flex flex-col items-center justify-center h-full gap-2 text-gray-400">
+                                                <Upload size={32} />
+                                                <span className="text-xs">الصورة الرئيسية</span>
+                                            </div>
+                                        )}
+                                    </div>
 
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleEditImageUpload}
-                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                    />
+                                    {/* Additional Images */}
+                                    <div className="md:col-span-2 grid grid-cols-3 md:grid-cols-1 gap-2">
+                                        {editForm.images.map((img, idx) => (
+                                            <div key={idx} className="relative aspect-square md:aspect-auto md:h-[calc((100%-1rem)/3)] border-2 border-dashed border-gray-200 rounded-xl overflow-hidden hover:border-[#C5A038] transition-colors group">
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) => handleEditImageUpload(e, idx)}
+                                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                                />
+                                                {uploadingIndex === idx ? (
+                                                    <div className="absolute inset-0 flex items-center justify-center text-[#C5A038] bg-white/80">
+                                                        <Loader2 className="animate-spin size-4" />
+                                                    </div>
+                                                ) : img ? (
+                                                    <div className="relative w-full h-full">
+                                                        <Image src={img} alt={`Extra ${idx}`} fill className="object-cover" />
+                                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <Trash2 size={14} className="text-white hover:text-red-400 cursor-pointer" onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                const newImages = [...editForm.images];
+                                                                newImages[idx] = "";
+                                                                setEditForm(prev => ({ ...prev, images: newImages }));
+                                                            }} />
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex flex-col items-center justify-center h-full gap-1 text-gray-400">
+                                                        <Plus size={16} />
+                                                        <span className="text-[10px]">إضافة صورة</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
 

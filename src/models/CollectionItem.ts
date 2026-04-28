@@ -5,6 +5,7 @@ export interface ICollectionItem {
     description: string;
     category: 'jalabiya' | 'ihram' | 'alteration' | 'women' | 'prayer_ihram' | 'uniform';
     image: string;
+    images?: string[];
     isFeatured: boolean;
     createdAt: Date;
 }
@@ -18,6 +19,7 @@ const CollectionItemSchema = new Schema<ICollectionItem>({
         enum: ['jalabiya', 'ihram', 'alteration', 'women', 'prayer_ihram', 'uniform']
     },
     image: { type: String, required: true },
+    images: { type: [String], default: [] },
     isFeatured: { type: Boolean, default: false },
 }, { timestamps: true });
 

@@ -24,7 +24,14 @@ export default function CollectionPage() {
     const [activeCategory, setActiveCategory] = useState("all");
     const [collectionItems, setCollectionItems] = useState<any[]>([]); // Using any for simplicity or define interface
     const [selectedItem, setSelectedItem] = useState<any | null>(null);
+    const [activeImage, setActiveImage] = useState("");
     const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (selectedItem) {
+            setActiveImage(selectedItem.image);
+        }
+    }, [selectedItem]);
 
     useEffect(() => {
         const fetchItems = async () => {
@@ -220,15 +227,32 @@ export default function CollectionPage() {
                                 <X size={24} />
                             </button>
 
-                            {/* Image (Left on RTL desktop) */}
-                            <div className="w-full md:w-1/2 h-[40%] md:h-full relative bg-gray-100">
-                                <Image
-                                    src={selectedItem.image}
-                                    alt={selectedItem.title}
-                                    fill
-                                    className="object-cover"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent md:hidden" />
+                            {/* Image Section */}
+                            <div className="w-full md:w-1/2 h-[50%] md:h-full relative bg-gray-100 flex flex-col">
+                                <div className="flex-1 relative">
+                                    <Image
+                                        src={activeImage}
+                                        alt={selectedItem.title}
+                                        fill
+                                        className="object-cover transition-all duration-500"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent md:hidden" />
+                                </div>
+                                
+                                {/* Thumbnails */}
+                                {(selectedItem.images && selectedItem.images.filter((img: string) => img).length > 0) && (
+                                    <div className="absolute bottom-6 right-0 left-0 flex justify-center gap-2 px-4 z-20">
+                                        {[selectedItem.image, ...selectedItem.images.filter((img: string) => img)].map((img, idx) => (
+                                            <button
+                                                key={idx}
+                                                onClick={() => setActiveImage(img)}
+                                                className={`relative w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${activeImage === img ? 'border-[#C5A038] scale-110 shadow-lg' : 'border-white/50 hover:border-white'}`}
+                                            >
+                                                <Image src={img} alt="thumb" fill className="object-cover" />
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
 
                             {/* Content Details */}

@@ -17,12 +17,15 @@ export default function NewCollectionItem() {
         description: "",
         category: "jalabiya",
         image: "",
+        images: ["", "", ""], // 3 additional images
     });
 
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const [uploadingIndex, setUploadingIndex] = useState<number | 'main' | null>(null);
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, index: 'main' | number) => {
         if (!e.target.files?.[0]) return;
 
-        setUploading(true);
+        setUploadingIndex(index);
         const file = e.target.files[0];
         const data = new FormData();
         data.append("file", file);
@@ -36,11 +39,18 @@ export default function NewCollectionItem() {
             if (!res.ok) throw new Error("Upload failed");
 
             const result = await res.json();
-            setFormData(prev => ({ ...prev, image: result.url }));
+            
+            if (index === 'main') {
+                setFormData(prev => ({ ...prev, image: result.url }));
+            } else {
+                const newImages = [...formData.images];
+                newImages[index] = result.url;
+                setFormData(prev => ({ ...prev, images: newImages }));
+            }
         } catch (error) {
             alert("فشل رفع الصورة");
         } finally {
-            setUploading(false);
+            setUploadingIndex(null);
         }
     };
 
@@ -78,42 +88,69 @@ export default function NewCollectionItem() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Image Upload */}
-                    <div className="space-y-2">
-                        <label className="block font-bold text-gray-700">صورة العرض</label>
-                        <div className="border-2 border-dashed border-gray-200 rounded-2xl p-8 text-center hover:border-[#C5A038] transition-colors relative">
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleImageUpload}
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                            />
-                            {uploading ? (
-                                <div className="flex flex-col items-center gap-2 text-[#C5A038]">
-                                    <Loader2 className="animate-spin" />
-                                    <span>جاري الرفع...</span>
-                                </div>
-                            ) : formData.image ? (
-                                <div className="relative h-64 w-full rounded-xl overflow-hidden">
-                                    <Image src={formData.image} alt="Preview" fill className="object-cover" />
-                                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center text-white opacity-0 hover:opacity-100 transition-opacity">
-                                        <span>تغيير الصورة</span>
+                    {/* Images Section */}
+                    <div className="space-y-4">
+                        <label className="block font-bold text-gray-700">صور المنتج (حتى 4 صور)</label>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            {/* Main Image */}
+                            <div className="md:col-span-2 relative aspect-square border-2 border-dashed border-gray-200 rounded-2xl overflow-hidden hover:border-[#C5A038] transition-colors group">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => handleImageUpload(e, 'main')}
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                />
+                                {uploadingIndex === 'main' ? (
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-[#C5A038] bg-white/80">
+                                        <Loader2 className="animate-spin" />
+                                        <span className="text-sm">جاري الرفع...</span>
                                     </div>
-                                </div>
-                            ) : (
-                                <div className="flex flex-col items-center gap-3 text-gray-400">
-                                    <div className="relative w-32 h-32 mb-2 opacity-50">
-                                        <Image
-                                            src="https://placehold.co/400x400/EEE/999?text=Image+Place"
-                                            alt="Placeholder"
-                                            fill
-                                            className="object-cover rounded-lg"
+                                ) : formData.image ? (
+                                    <div className="relative w-full h-full">
+                                        <Image src={formData.image} alt="Main" fill className="object-cover" />
+                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <span className="text-white text-sm font-bold">تغيير الصورة الرئيسية</span>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center h-full gap-2 text-gray-400">
+                                        <Upload size={32} />
+                                        <span className="text-xs">الصورة الرئيسية</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Additional Images */}
+                            <div className="md:col-span-2 grid grid-cols-3 md:grid-cols-1 gap-2">
+                                {formData.images.map((img, idx) => (
+                                    <div key={idx} className="relative aspect-square md:aspect-auto md:h-[calc((100%-1rem)/3)] border-2 border-dashed border-gray-200 rounded-xl overflow-hidden hover:border-[#C5A038] transition-colors group">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => handleImageUpload(e, idx)}
+                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                         />
+                                        {uploadingIndex === idx ? (
+                                            <div className="absolute inset-0 flex items-center justify-center text-[#C5A038] bg-white/80">
+                                                <Loader2 className="animate-spin size-4" />
+                                            </div>
+                                        ) : img ? (
+                                            <div className="relative w-full h-full">
+                                                <Image src={img} alt={`Extra ${idx}`} fill className="object-cover" />
+                                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <Upload size={16} className="text-white" />
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="flex flex-col items-center justify-center h-full gap-1 text-gray-400">
+                                                <Plus size={20} />
+                                                <span className="text-[10px]">صورة {idx + 2}</span>
+                                            </div>
+                                        )}
                                     </div>
-                                    <Upload size={40} />
-                                    <span>اسحب الصورة هنا أو اضغط للاختيار</span>
-                                </div>
-                            )}
+                                ))}
+                            </div>
                         </div>
                     </div>
 
