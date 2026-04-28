@@ -1,24 +1,17 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import { Service } from '@/models/Service';
-import { servicesData } from '@/data/services';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
     await dbConnect();
     try {
         const services = await Service.find({}).sort({ order: 1, createdAt: -1 });
-        
-        // Fallback to mock data if database is empty
-        if (!services || services.length === 0) {
-            const mappedData = servicesData.map(s => ({ ...s, _id: s.id }));
-            return NextResponse.json(mappedData);
-        }
-        
         return NextResponse.json(services);
     } catch (error) {
-        console.error("Database fetch failed, falling back to mock data:", error);
-        const mappedData = servicesData.map(s => ({ ...s, _id: s.id }));
-        return NextResponse.json(mappedData);
+        console.error("Database fetch failed:", error);
+        return NextResponse.json({ error: "Failed to fetch services" }, { status: 500 });
     }
 }
 
