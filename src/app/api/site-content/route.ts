@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import { SiteContent } from '@/models/SiteContent';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
     await dbConnect();
     try {
@@ -18,7 +20,7 @@ export async function GET() {
         const content = await SiteContent.find({});
         return NextResponse.json(content, {
             headers: {
-                'Cache-Control': 'public, max-age=1800, s-maxage=1800, stale-while-revalidate=59',
+                'Cache-Control': 'no-store, max-age=0',
             }
         });
     } catch (error) {

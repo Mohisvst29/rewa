@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import { BlogPost } from '@/models/BlogPost';
+
+export const dynamic = 'force-dynamic';
 import { generateSlug, generateSEOMetadata } from '@/lib/seo-utils';
 
 const DEFAULT_POSTS = [
@@ -45,7 +47,7 @@ export async function GET(request: Request) {
 
         return NextResponse.json(posts, {
             headers: {
-                'Cache-Control': 'public, max-age=1800, s-maxage=1800, stale-while-revalidate=59',
+                'Cache-Control': 'no-store, max-age=0',
             }
         });
     } catch (error) {

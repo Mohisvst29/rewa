@@ -2,6 +2,8 @@ import { NextResponse, NextRequest } from 'next/server';
 import dbConnect from '@/lib/db';
 import { CollectionItem } from '@/models/CollectionItem';
 
+export const dynamic = 'force-dynamic';
+
 // PUT: Update an item
 export async function PUT(
     request: NextRequest,

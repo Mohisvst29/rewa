@@ -26,6 +26,8 @@ const DEFAULT_ITEMS = [
     }
 ];
 
+export const dynamic = 'force-dynamic';
+
 // GET: Fetch all items (with optional filtering)
 export async function GET(request: Request) {
     await dbConnect();
@@ -40,22 +42,14 @@ export async function GET(request: Request) {
 
         const items = await CollectionItem.find(query).sort({ createdAt: -1 });
         
-        if (!items || items.length === 0) {
-            // Apply filtering to mock data if needed
-            let filteredMock = DEFAULT_ITEMS;
-            if (category && category !== 'all') filteredMock = filteredMock.filter(i => i.category === category);
-            if (featured === 'true') filteredMock = filteredMock.filter(i => i.isFeatured);
-            return NextResponse.json(filteredMock);
-        }
-
         return NextResponse.json(items, {
             headers: {
-                'Cache-Control': 'public, max-age=1800, s-maxage=1800, stale-while-revalidate=59',
+                'Cache-Control': 'no-store, max-age=0',
             }
         });
     } catch (error) {
-        console.error("Database fetch failed, falling back to mock items:", error);
-        return NextResponse.json(DEFAULT_ITEMS);
+        console.error("Database fetch failed:", error);
+        return NextResponse.json({ error: "Failed to fetch items" }, { status: 500 });
     }
 }
 
