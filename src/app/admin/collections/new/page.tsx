@@ -196,7 +196,7 @@ export default function NewCollectionItem() {
                     </div>
 
                     <div className="pt-4">
-                        <Button type="submit" disabled={loading || !formData.image} className="w-full py-4 text-lg">
+                        <Button type="submit" disabled={loading || !formData.image || uploadingIndex !== null} className="w-full py-4 text-lg">
                             {loading ? <Loader2 className="animate-spin mx-auto" /> : "حفظ ونشر"}
                         </Button>
                     </div>

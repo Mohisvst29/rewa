@@ -331,9 +331,9 @@ export default function CollectionsAdmin() {
                                 <Button
                                     onClick={handleSaveEdit}
                                     className="flex-1 bg-[#5A4A42] hover:bg-[#4A3A32]"
-                                    disabled={uploading}
+                                    disabled={uploadingIndex !== null}
                                 >
-                                    {uploading ? "جاري الحفظ..." : "حفظ التغييرات"}
+                                    {uploadingIndex !== null ? "جاري الرفع..." : "حفظ التغييرات"}
                                 </Button>
                                 <button
                                     onClick={closeEditModal}
