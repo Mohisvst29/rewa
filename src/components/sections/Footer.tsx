@@ -9,7 +9,7 @@ export function Footer() {
             <div className="absolute inset-0 bg-gradient-to-b from-[#FFF8E7] to-[#FCEBC4] opacity-80 pointer-events-none" />
 
             <div className="relative max-w-7xl mx-auto px-4 md:px-8 z-10">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-16">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-16">
                     {/* Logo Section */}
                     <div className="flex-shrink-0">
                         <div className="relative w-20 h-20 md:w-40 md:h-40">
@@ -39,7 +39,17 @@ export function Footer() {
 
                     </div>
 
-                    {/* Map Section Removed as per request */}
+                    {/* QR Code Section (Opposite Logo on the left) */}
+                    <div className="flex-shrink-0 flex flex-col items-center gap-2">
+                        <div className="relative w-24 h-24 md:w-32 md:h-32 bg-white p-2 rounded-2xl shadow-md border border-[#C5A038]/30 hover:scale-105 transition-transform duration-300">
+                            <Image
+                                src="/qrcode.png"
+                                alt="QR Code"
+                                fill
+                                className="object-contain p-1 rounded-xl"
+                            />
+                        </div>
+                    </div>
 
                 </div>
 
