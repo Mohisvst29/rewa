@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { servicesData } from "@/data/services";
 import {
   Phone,
   MapPin,
@@ -29,6 +30,24 @@ export function Contact() {
   });
 
   const [status, setStatus] = useState("idle");
+  const [servicesList, setServicesList] = useState<Array<{ _id?: string; id?: string; title: string }>>(servicesData);
+
+  useEffect(() => {
+    async function fetchServices() {
+      try {
+        const res = await fetch("/api/services");
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            setServicesList(data);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch services for contact form", error);
+      }
+    }
+    fetchServices();
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -227,13 +246,14 @@ ${formState.message}
                   name="service"
                   value={formState.service}
                   onChange={handleChange}
-                  className="w-full p-4 border rounded-xl"
+                  className="w-full p-4 border rounded-xl bg-white"
                 >
                   <option value="">اختر الخدمة</option>
-                  <option value="ihram">إحرامات حج وعمرة</option>
-                  <option value="jalabiya">خياطة جلابيات</option>
-                  <option value="alteration">تعديل ملابس</option>
-                  <option value="comprehensive">خياطة نسائية</option>
+                  {servicesList.map((srv, index) => (
+                    <option key={srv._id || srv.id || index} value={srv.title}>
+                      {srv.title}
+                    </option>
+                  ))}
                 </select>
 
                 <textarea

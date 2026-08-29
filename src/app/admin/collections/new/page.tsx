@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Upload, Loader2, ArrowRight } from "lucide-react";
+import { Upload, Loader2, ArrowRight, Plus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import Image from "next/image";
