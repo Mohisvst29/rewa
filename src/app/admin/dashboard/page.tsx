@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpen, Image as ImageIcon, Layers, LayoutGrid, Settings, Scissors, Search, Star } from "lucide-react";
+import { BookOpen, Image as ImageIcon, KeyRound, Layers, LayoutGrid, Settings, Scissors, Search, Star } from "lucide-react";
 
 export default function AdminDashboard() {
     const cards = [
@@ -53,6 +53,13 @@ export default function AdminDashboard() {
             icon: <Star size={32} />,
             href: "/admin/reviews",
             color: "bg-orange-50 text-orange-600 border-orange-100"
+        },
+        {
+            title: "تغيير بيانات الدخول",
+            description: "تعديل البريد الإلكتروني وكلمة المرور للوحة التحكم",
+            icon: <KeyRound size={32} />,
+            href: "/admin/settings",
+            color: "bg-indigo-50 text-indigo-600 border-indigo-100"
         },
     ];
 
